@@ -98,14 +98,16 @@ canvas{display:block;width:100%;background:#fff;border:1px solid var(--line);bor
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
 const WORDS=[
-["cat","con mèo"],["dog","con chó"],["umbrella","cái ô"],["sun","mặt trời"],["moon","mặt trăng"],
-["star","ngôi sao"],["flower","bông hoa"],["tree","cây"],["house","ngôi nhà"],["car","ô tô"],
-["bicycle","xe đạp"],["book","quyển sách"],["phone","điện thoại"],["coffee","cà phê"],["pizza","pizza"],
-["banana","quả chuối"],["apple","quả táo"],["bird","con chim"],["fish","con cá"],["rabbit","con thỏ"],
-["heart","trái tim"],["rain","mưa"],["rainbow","cầu vồng"],["mountain","ngọn núi"],["beach","bãi biển"],
-["train","tàu hỏa"],["airplane","máy bay"],["camera","máy ảnh"],["gift","món quà"],["cake","bánh ngọt"],
-["key","chìa khóa"],["shoes","đôi giày"],["hat","cái mũ"],["glasses","kính"],["ring","chiếc nhẫn"],
-["kiss","nụ hôn"],["hug","cái ôm"],["love","tình yêu"]
+["cat","con mèo"],["dog","con chó"],["sun","mặt trời"],["star","ngôi sao"],["tree","cây"],
+["house","ngôi nhà"],["car","ô tô"],["book","quyển sách"],["fish","con cá"],["flower","bông hoa"],
+["umbrella","cái ô"],["bicycle","xe đạp"],["phone","điện thoại"],["coffee","cà phê"],["banana","quả chuối"],
+["apple","quả táo"],["bird","con chim"],["rabbit","con thỏ"],["heart","trái tim"],["rainbow","cầu vồng"],
+["pizza","pizza"],["cake","bánh ngọt"],["gift","món quà"],["camera","máy ảnh"],["shoes","đôi giày"],
+["rain","mưa"],["moon","mặt trăng"],["hat","cái mũ"],["glasses","kính"],["key","chìa khóa"],
+["mountain","ngọn núi"],["airplane","máy bay"],["train","tàu hỏa"],["ring","chiếc nhẫn"],["kiss","nụ hôn"],
+["hug","cái ôm"],["love","tình yêu"],["ice cream","kem"],["balloon","bóng bay"],["teddy bear","gấu bông"],
+["toothbrush","bàn chải đánh răng"],["toothpaste","kem đánh răng"],["scissors","cái kéo"],["crown","vương miện"],
+["cloud","đám mây"],["lollipop","kẹo mút"],["cupcake","bánh cupcake"],["panda","gấu trúc"],["cherry","quả anh đào"],["butterfly","con bướm"]
 ];
 const T={
 en:{brand:"🎨 Scribble Date 💕",sub:"Draw • Guess • Translate • Laugh",title:"A tiny game made for two",desc:"Each player sees the word in their own language. Guess in your own language. Chat is translated too.",createTitle:"Create room",joinTitle:"Join room",nameLabel:"Your name",nameLabel2:"Your name",yourLang:"Your language",yourLang2:"Your language",createBtn:"Create room",joinBtn:"Join room",roomCodeLabel:"Room code",copy:"Copy code",waiting:"Waiting for your friend…",guestWaiting:"You are connected. The host will start the game 💗",start:"Start game",players:"Players",chatTitle:"💬 Translated chat",waitingHost:"Waiting for the host…",connected:"Your friend is connected 💗",draw:"Your turn — draw!",guessTurn:"Your turn — guess!",drawHint:"Draw the word without typing it!",guessHint:"Type your guess in your language.",correct:"🎉 Correct!",tryAgain:"Try again!",connection:"Connecting…",codeNeeded:"Enter the room code."},
@@ -163,10 +165,10 @@ other=m.player;renderPlayers([me,{...other,score:0}]);setStatus(tx("connected"),
 }
 if(m.t==="welcome"&&!isHost){other=m.guest;renderPlayers([m.host,other]);setStatus(tx("guestWaiting"),"ok");}
 if(m.t==="start"){artistId=m.artistId;target=m.target;round=1;scores={};(m.players||[]).forEach(p=>scores[p.id]=0);renderPlayers(m.players);startTurn();}
-if(m.t==="nextRound"){artistId=m.artistId;target=m.target;round=m.round||round+1;scores=m.scores||scores;renderPlayers([me,{...other,score:scores[other?.id]||0}]);startTurn();}
-if(m.t==="draw"){drawLine(m.a,m.b,false);}
+if(m.t==="nextRound"){artistId=m.artistId;target=m.target;round=m.round||round+1;scores=m.scores||scores;renderPlayers([{...me,score:scores[me.id]||0},{...other,score:scores[other?.id]||0}]);startTurn();}
+if(m.t==="draw"){drawLine(m.a,m.b,false,m.color||"#29232b");}
 if(m.t==="clear"){ctx.clearRect(0,0,900,600);}
-if(m.t==="guess"&&isHost){const ok=[target[0],target[1]].some(x=>normalize(m.g)===normalize(x));if(ok){scores[m.from||other.id]=(scores[m.from||other.id]||0)+1;$("gameStatus").textContent=tx("correct");send({t:"guessResult",correct:true,scores});setTimeout(nextRound,1200);}else{send({t:"guessResult",correct:false});}}
+if(m.t==="guess"&&isHost){const ok=[target[0],target[1]].some(x=>normalize(m.g)===normalize(x));if(ok){scores[m.from||other.id]=(scores[m.from||other.id]||0)+1;$("gameStatus").textContent=tx("correct");send({t:"guessResult",correct:true,scores});setTimeout(()=>{round++;artistId=(artistId===me.id?other.id:me.id);target=WORDS[Math.floor(Math.random()*WORDS.length)];send({t:"nextRound",artistId,target,round,scores});startTurn();},1200);}else{send({t:"guessResult",correct:false});}}
 if(m.t==="guessResult"){ $("gameStatus").textContent=m.correct?tx("correct"):tx("tryAgain"); }
 if(m.t==="chat"){addChat(m.name,m.text,m.translated);}
 }
@@ -192,7 +194,7 @@ if(!iAmArtist)$("guessInput").focus();drawing=iAmArtist;ctx.clearRect(0,0,900,60
 const canvas=$("board"),ctx=canvas.getContext("2d");
 function point(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*900/r.width,y:(e.clientY-r.top)*600/r.height}}
 let brushColor="#29232b";
-function drawLine(a,b,emit=true){ctx.strokeStyle=brushColor;ctx.lineWidth=brush;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();if(emit)send({t:"draw",a,b})}
+function drawLine(a,b,emit=true,color=brushColor){ctx.strokeStyle=color;ctx.lineWidth=brush;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();if(emit)send({t:"draw",a,b,color:brushColor})}
 canvas.addEventListener("pointerdown",e=>{if(!drawing)return;canvas.setPointerCapture(e.pointerId);last=point(e)});
 canvas.addEventListener("pointermove",e=>{if(!drawing||!last)return;const p=point(e);drawLine(last,p);last=p});
 canvas.addEventListener("pointerup",()=>last=null);
@@ -201,10 +203,10 @@ document.querySelectorAll("[data-color]").forEach(b=>b.onclick=()=>brushColor=b.
 $("clearBtn").onclick=()=>{ctx.clearRect(0,0,900,600);send({t:"clear"})};
 $("guessBtn").onclick=()=>{const g=$("guessInput").value.trim();if(!g)return;$("guessInput").value="";send({t:"guess",g,from:me.id})};
 $("guessInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("guessBtn").click()});
-async function translate(text,from,to){if(!text||from===to)return text;try{const url="https://translate.googleapis.com/translate_a/single?client=gtx&sl="+from+"&tl="+to+"&dt=t&q="+encodeURIComponent(text);const j=await (await fetch(url)).json();return j[0].map(x=>x[0]).join("")||text}catch(e){return text}}
+async function translate(text,from,to){if(!text)return text;if(from===to)return text;try{const url="https://translate.googleapis.com/translate_a/single?client=gtx&sl="+from+"&tl="+to+"&dt=t&q="+encodeURIComponent(text);const j=await (await fetch(url)).json();return j[0].map(x=>x[0]).join("")||text}catch(e){return text}}
 function addChat(name,text,translated){const box=$("chat");const d=document.createElement("div");d.className="msg";d.innerHTML="<div class='who'>"+escapeHtml(name)+"</div><div>"+escapeHtml(text)+"</div><div class='trans'>"+escapeHtml(translated||text)+"</div>";box.appendChild(d);box.scrollTop=box.scrollHeight}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
-$("chatBtn").onclick=async()=>{const text=$("chatInput").value.trim();if(!text)return;$("chatInput").value="";const translated=await translate(text,me.lang,other?.lang||"en");addChat(me.name,text,translated);send({t:"chat",name:me.name,text,translated})};
+$("chatBtn").onclick=async()=>{const text=$("chatInput").value.trim();if(!text)return;$("chatInput").value="";const translated=await translate(text,me.lang,other?.lang||"en");addChat(me.name,text,translated);send({t:"chat",name:me.name,text,translated,from:me.lang,to:other?.lang||"en"});};
 $("createBtn").onclick=createRoom;$("joinBtn").onclick=joinRoom;
 $("startBtn").onclick=startGameHost;
 $("copyBtn").onclick=async()=>{try{await navigator.clipboard.writeText($("roomCode").textContent);$("copyBtn").textContent="✓";setTimeout(()=>$("copyBtn").textContent=tx("copy"),1000)}catch(e){}};
