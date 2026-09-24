@@ -152,24 +152,33 @@ const code=$("roomInput").value.trim().toUpperCase();if(!code){alert(tx("codeNee
 isHost=false;me={id:"guest-"+Math.random().toString(36).slice(2),name:$("guestName").value.trim()||"My Love",lang:joinLang};show("lobby");$("hostControls").classList.add("hidden");$("guestWaiting").classList.remove("hidden");setStatus(tx("connection"));
 makePeer();peer.on("open",()=>{setupConnection(peer.connect("SD"+code,{reliable:true}));});
 }
-function nextRound(){\n  round++; artistId=(artistId===me.id?other.id:me.id); target=WORDS[Math.floor(Math.random()*WORDS.length)];\n  send({t:"nextRound",artistId,target,round,scores}); startTurn();\n}\nfunction handle(m){
+function nextRound(){
+  round++; artistId=(artistId===me.id?other.id:me.id); target=WORDS[Math.floor(Math.random()*WORDS.length)];
+  send({t:"nextRound",artistId,target,round,scores}); startTurn();
+}
+function handle(m){
 if(!m||!m.t)return;
 if(m.t==="hello"&&isHost){
 other=m.player;renderPlayers([me,{...other,score:0}]);setStatus(tx("connected"),"ok");$("startBtn").disabled=false;send({t:"welcome",host:me,guest:{...other,score:0}});
 }
 if(m.t==="welcome"&&!isHost){other=m.guest;renderPlayers([m.host,other]);setStatus(tx("guestWaiting"),"ok");}
-if(m.t==="start"){artistId=m.artistId;target=m.target;round=1;scores={};(m.players||[]).forEach(p=>scores[p.id]=0);renderPlayers(m.players);startTurn();}\nif(m.t==="nextRound"){artistId=m.artistId;target=m.target;round=m.round||round+1;scores=m.scores||scores;renderPlayers([me,{...other,score:scores[other?.id]||0}]);startTurn();}
+if(m.t==="start"){artistId=m.artistId;target=m.target;round=1;scores={};(m.players||[]).forEach(p=>scores[p.id]=0);renderPlayers(m.players);startTurn();}
+if(m.t==="nextRound"){artistId=m.artistId;target=m.target;round=m.round||round+1;scores=m.scores||scores;renderPlayers([me,{...other,score:scores[other?.id]||0}]);startTurn();}
 if(m.t==="draw"){drawLine(m.a,m.b,false);}
 if(m.t==="clear"){ctx.clearRect(0,0,900,600);}
-if(m.t==="guess"&&isHost){const ok=[target[0],target[1]].some(x=>normalize(m.g)===normalize(x));if(ok){scores[me.id]=(scores[me.id]||0)+1;$("gameStatus").textContent=tx("correct");send({t:"guessResult",correct:true,scores});setTimeout(nextRound,1200);}else{send({t:"guessResult",correct:false});}}
+if(m.t==="guess"&&isHost){const ok=[target[0],target[1]].some(x=>normalize(m.g)===normalize(x));if(ok){scores[m.from||other.id]=(scores[m.from||other.id]||0)+1;$("gameStatus").textContent=tx("correct");send({t:"guessResult",correct:true,scores});setTimeout(nextRound,1200);}else{send({t:"guessResult",correct:false});}}
 if(m.t==="guessResult"){ $("gameStatus").textContent=m.correct?tx("correct"):tx("tryAgain"); }
 if(m.t==="chat"){addChat(m.name,m.text,m.translated);}
 }
 function startGameHost(){
 if(!conn||!conn.open){setStatus("The other player is not connected yet.","bad");return}
+round=1;
+scores={};
+scores[me.id]=0;
+scores[other.id]=0;
 target=WORDS[Math.floor(Math.random()*WORDS.length)];
 artistId=me.id;
-send({t:"start",artistId:me.id,target,players:[me,{...other,score:0}]});
+send({t:"start",artistId:me.id,target,round,scores,players:[me,{...other,score:0}]});
 startTurn();
 }
 function startTurn(){
@@ -182,13 +191,15 @@ if(!iAmArtist)$("guessInput").focus();drawing=iAmArtist;ctx.clearRect(0,0,900,60
 }
 const canvas=$("board"),ctx=canvas.getContext("2d");
 function point(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*900/r.width,y:(e.clientY-r.top)*600/r.height}}
-let brushColor="#29232b";\nfunction drawLine(a,b,emit=true){ctx.strokeStyle=brushColor;ctx.lineWidth=brush;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();if(emit)send({t:"draw",a,b})}
+let brushColor="#29232b";
+function drawLine(a,b,emit=true){ctx.strokeStyle=brushColor;ctx.lineWidth=brush;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();if(emit)send({t:"draw",a,b})}
 canvas.addEventListener("pointerdown",e=>{if(!drawing)return;canvas.setPointerCapture(e.pointerId);last=point(e)});
 canvas.addEventListener("pointermove",e=>{if(!drawing||!last)return;const p=point(e);drawLine(last,p);last=p});
 canvas.addEventListener("pointerup",()=>last=null);
-document.querySelectorAll("[data-size]").forEach(b=>b.onclick=()=>brush=+b.dataset.size);\ndocument.querySelectorAll("[data-color]").forEach(b=>b.onclick=()=>brushColor=b.dataset.color);
+document.querySelectorAll("[data-size]").forEach(b=>b.onclick=()=>brush=+b.dataset.size);
+document.querySelectorAll("[data-color]").forEach(b=>b.onclick=()=>brushColor=b.dataset.color);
 $("clearBtn").onclick=()=>{ctx.clearRect(0,0,900,600);send({t:"clear"})};
-$("guessBtn").onclick=()=>{const g=$("guessInput").value.trim();if(!g)return;$("guessInput").value="";send({t:"guess",g})};
+$("guessBtn").onclick=()=>{const g=$("guessInput").value.trim();if(!g)return;$("guessInput").value="";send({t:"guess",g,from:me.id})};
 $("guessInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("guessBtn").click()});
 async function translate(text,from,to){if(!text||from===to)return text;try{const url="https://translate.googleapis.com/translate_a/single?client=gtx&sl="+from+"&tl="+to+"&dt=t&q="+encodeURIComponent(text);const j=await (await fetch(url)).json();return j[0].map(x=>x[0]).join("")||text}catch(e){return text}}
 function addChat(name,text,translated){const box=$("chat");const d=document.createElement("div");d.className="msg";d.innerHTML="<div class='who'>"+escapeHtml(name)+"</div><div>"+escapeHtml(text)+"</div><div class='trans'>"+escapeHtml(translated||text)+"</div>";box.appendChild(d);box.scrollTop=box.scrollHeight}
