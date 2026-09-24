@@ -137,7 +137,7 @@ function renderPlayers(ps){
     if(sb){const s=document.createElement("div");s.className="score";s.textContent=p.name+": "+score;sb.appendChild(s)}
   });
 }
-function randomRoomCode(){return Math.random().toString(36).slice(2,10).toUpperCase()}
+function randomRoomCode(){return Math.random().toString(36).slice(2,14).toUpperCase()}
 function makeWordQueue(){
   wordQueue=[...Array(WORDS.length).keys()];
   for(let i=wordQueue.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[wordQueue[i],wordQueue[j]]=[wordQueue[j],wordQueue[i]]}
