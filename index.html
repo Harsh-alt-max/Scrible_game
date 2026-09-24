@@ -1,7 +1,204 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Scribble Date 💕</title><style>body{font-family:system-ui;max-width:900px;margin:auto;padding:18px;background:#fff7fb;color:#29232b}section{background:#fff;border:1px solid #eadde5;border-radius:20px;padding:18px;margin:12px 0}button{padding:11px 15px;border:0;border-radius:12px;background:#ff5c93;color:white;font-weight:700;margin:4px}input,select{padding:11px;border:1px solid #eadde5;border-radius:11px;box-sizing:border-box;width:100%;margin:4px 0}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.hidden{display:none}canvas{width:100%;background:white;border:1px solid #eadde5;border-radius:15px;touch-action:none}@media(max-width:650px){.row{grid-template-columns:1fr}}</style></head><body><section><h1>🎨 Scribble Date 💕</h1><p>English ↔ Vietnamese drawing & guessing for two.</p><div id="home"><div class="row"><div><h3>Create room</h3><input id="hn" value="Harsh"><select id="hl"><option value="en">🇬🇧 English</option><option value="vi">🇻🇳 Tiếng Việt</option></select><button id="create">Create room</button></div><div><h3>Join room</h3><input id="gn" value="My Love"><p>Language</p><button id="v" style="background:#ff5c93">🇻🇳 Tiếng Việt</button><button id="e" style="background:#fff;color:#29232b;border:1px solid #eadde5">🇬🇧 English</button><input id="code" placeholder="Room code"><button id="join">Join room</button></div></div></div><div id="room" class="hidden"><h2>Room: <span id="rc"></span></h2><p id="rs">Waiting…</p><button id="start" disabled>Start game</button></div><div id="game" class="hidden"><h3 id="turn"></h3><h2 id="word"></h2><canvas id="cv" width="900" height="600"></canvas><input id="guess" placeholder="Type your guess"><button id="gb">Guess</button><h3>💬 Chat</h3><div id="chat"></div><input id="msg" placeholder="Message"><button id="cb">Send</button></div></section><script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script><script>
-const P=[["cat","con mèo"],["dog","con chó"],["umbrella","cái ô"],["sun","mặt trời"],["moon","mặt trăng"],["flower","bông hoa"],["tree","cây"],["house","ngôi nhà"],["car","ô tô"],["bicycle","xe đạp"],["phone","điện thoại"],["coffee","cà phê"],["pizza","pizza"],["banana","quả chuối"],["apple","quả táo"],["bird","con chim"],["fish","con cá"],["rabbit","con thỏ"],["heart","trái tim"],["rain","mưa"],["rainbow","cầu vồng"],["mountain","ngọn núi"],["beach","bãi biển"],["train","tàu hỏa"],["camera","máy ảnh"],["gift","món quà"],["cake","bánh ngọt"],["key","chìa khóa"],["love","tình yêu"],["hug","cái ôm"]];
-let peer,conn,host=false,me,other,target,artist=false,lang="vi";const $=id=>document.getElementById(id), norm=x=>x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").trim();function show(x){$("home").classList.toggle("hidden",x!="home");$("room").classList.toggle("hidden",x!="room");$("game").classList.toggle("hidden",x!="game")}function send(x){if(conn?.open)conn.send(x)}function setup(c){conn=c;c.on("open",()=>{send({t:"hello",p:me});$("rs").textContent="Connected ❤️"});c.on("data",m=>{if(m.t=="hello"&&host){other=m.p;$("rs").textContent="Your friend is connected 💗";$("start").disabled=false}if(m.t=="start"){target=m.target;artist=m.artist;begin()}if(m.t=="draw"){line(m.a,m.b,false)}if(m.t=="chat")chat(m.n,m.x,m.y)});c.on("error",e=>$("rs").textContent="Connection error: "+e.type)}function np(id){peer=new Peer(id,{host:"0.peerjs.com",port:443,path:"/"});peer.on("error",e=>alert("Connection problem: "+e.type));return peer}
-$("v").onclick=()=>lang="vi";$("e").onclick=()=>lang="en";$("create").onclick=()=>{host=true;me={name:$("hn").value||"Harsh",lang:$("hl").value};np("SD"+Math.random().toString(36).slice(2,8).toUpperCase());peer.on("open",id=>{$("rc").textContent=id.slice(2);show("room")});peer.on("connection",setup)};$("join").onclick=()=>{let c=$("code").value.trim().toUpperCase();if(!c)return alert("Enter the room code.");me={name:$("gn").value||"My Love",lang};show("room");$("rs").textContent="Connecting…";np().on("open",()=>setup(peer.connect("SD"+c,{reliable:true})))};
-$("start").onclick=()=>{target=P[Math.floor(Math.random()*P.length)];artist=true;send({t:"start",target,artist});begin()};function begin(){show("game");$("turn").textContent=artist?"Your turn — draw!":"Her turn — guess!";$("word").textContent=artist?(me.lang=="vi"?target[1]:target[0]):"🤔 Guess it!"}
-const cv=$("cv"),ctx=cv.getContext("2d");let down=false,last;function pt(e){let r=cv.getBoundingClientRect(),q=e.touches?.[0]||e;return{x:(q.clientX-r.left)*900/r.width,y:(q.clientY-r.top)*600/r.height}}function line(a,b,sendit=true){ctx.strokeStyle="#29232b";ctx.lineWidth=6;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();if(sendit)send({t:"draw",a,b})}cv.onpointerdown=e=>{if(artist){down=true;last=pt(e)}};cv.onpointermove=e=>{if(down){let q=pt(e);line(last,q);last=q}};cv.onpointerup=()=>down=false;$("gb").onclick=()=>{let g=$("guess").value.trim();if(host&&g){let ok=[target[0],target[1]].some(x=>norm(g)==norm(x));$("turn").textContent=ok?"🎉 Correct!":"Try again!"}else if(g)send({t:"guess",g})};async function trans(x){try{let u="https://translate.googleapis.com/translate_a/single?client=gtx&sl="+me.lang+"&tl="+(other?.lang||"en")+"&dt=t&q="+encodeURIComponent(x);let j=await(await fetch(u)).json();return j[0].map(a=>a[0]).join("")}catch(e){return x}}function chat(n,x,y){$("chat").innerHTML+="<p><b>"+n+":</b> "+x+"<br><small>"+y+"</small></p>"}$("cb").onclick=async()=>{let x=$("msg").value.trim();if(!x)return;$("msg").value="";let y=await trans(x);chat(me.name,x,y);send({t:"chat",n:me.name,x,y})};
-</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scribble Date 💕</title>
+<style>
+:root{--pink:#ff5c93;--ink:#29232b;--muted:#746b77;--line:#eadde5;--bg:#fff7fb}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(135deg,#fff7fb,#f8f4ff);color:var(--ink)}
+.wrap{max-width:1000px;margin:auto;padding:18px}.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.brand{font-weight:900;font-size:24px}.sub{color:var(--muted);font-size:12px}
+.card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:20px;margin-bottom:14px;box-shadow:0 10px 30px #4f263d12}
+.center{text-align:center}.hero{padding:32px 20px}.hero h1{font-size:40px;margin:5px 0 10px}.hero p{color:var(--muted)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.hidden{display:none!important}
+button{border:0;border-radius:12px;padding:11px 15px;background:var(--pink);color:white;font-weight:800;cursor:pointer;margin:4px}button.secondary{background:#fff;color:var(--ink);border:1px solid var(--line)}
+input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;margin:4px 0;outline:none}
+.langbar{display:flex;gap:6px}.langbar button{margin:0;padding:8px 10px;font-size:12px}.activeLang{outline:3px solid #ffd0df}
+.roomcode{font-size:32px;font-weight:900;letter-spacing:6px;background:#fff1f6;border-radius:16px;padding:12px;margin:10px 0}
+.status{padding:12px;border-radius:12px;background:#faf7fa;color:var(--muted);margin:10px 0;font-size:13px}.ok{background:#effaf5;color:#168351}.bad{background:#fff0f2;color:#b33d52}
+.gamegrid{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:14px}
+canvas{display:block;width:100%;background:#fff;border:1px solid var(--line);border-radius:16px;touch-action:none}
+.toolbar{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.toolbar button{padding:8px 11px}
+.word{font-size:28px;font-weight:900}.small{font-size:12px;color:var(--muted)}.turn{font-size:18px;font-weight:900}
+.chat{height:270px;overflow:auto;background:#faf8fb;border:1px solid var(--line);border-radius:14px;padding:10px}.msg{margin-bottom:9px}.who{font-size:11px;color:var(--muted);font-weight:800}.trans{font-size:12px;color:#6d5965}
+.chatrow{display:flex;gap:7px;margin-top:8px}.chatrow input{flex:1}.players{display:flex;flex-wrap:wrap;gap:7px}
+.player{padding:8px 10px;background:#faf5f8;border:1px solid var(--line);border-radius:12px;font-size:12px}
+@media(max-width:760px){.row,.gamegrid{grid-template-columns:1fr}.hero h1{font-size:32px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><div class="brand" data-i="brand">🎨 Scribble Date 💕</div><div class="sub" data-i="sub">Draw • Guess • Translate • Laugh</div></div>
+    <div class="langbar"><button id="enTop">🇬🇧 English</button><button id="viTop">🇻🇳 Tiếng Việt</button></div>
+  </div>
+
+  <section id="home" class="card hero">
+    <div style="font-size:52px">🎨💗✏️</div>
+    <h1 data-i="title">A tiny game made for two</h1>
+    <p data-i="desc">Each player sees the word in their own language. Guess in your own language. Chat is translated too.</p>
+    <div class="row">
+      <div class="card">
+        <h3 data-i="createTitle">Create room</h3>
+        <label data-i="nameLabel">Your name</label>
+        <input id="hostName" value="Harsh">
+        <label data-i="yourLang">Your language</label>
+        <select id="hostLang"><option value="en">🇬🇧 English</option><option value="vi">🇻🇳 Tiếng Việt</option></select>
+        <button id="createBtn" data-i="createBtn">Create room</button>
+      </div>
+      <div class="card">
+        <h3 data-i="joinTitle">Join room</h3>
+        <label data-i="nameLabel2">Your name</label>
+        <input id="guestName" value="My Love">
+        <label data-i="yourLang2">Your language</label>
+        <div class="langbar" style="margin-bottom:5px"><button id="joinVi">🇻🇳 Tiếng Việt</button><button id="joinEn">🇬🇧 English</button></div>
+        <input id="roomInput" placeholder="Room code">
+        <button id="joinBtn" data-i="joinBtn">Join room</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="lobby" class="card center hidden">
+    <div class="small" data-i="roomCodeLabel">Room code</div>
+    <div id="roomCode" class="roomcode">------</div>
+    <button class="secondary" id="copyBtn" data-i="copy">Copy code</button>
+    <div class="status" id="lobbyStatus" data-i="waiting">Waiting for your friend…</div>
+    <div id="lobbyPlayers" class="players"></div>
+    <div id="hostControls">
+      <button id="startBtn" disabled data-i="start">Start game</button>
+    </div>
+    <div id="guestWaiting" class="small hidden" data-i="guestWaiting">You are connected. The host will start the game 💗</div>
+  </section>
+
+  <section id="game" class="hidden">
+    <div class="gamegrid">
+      <div class="card">
+        <div class="turn" id="turnText">—</div>
+        <div class="word" id="wordText">—</div>
+        <div class="small" id="hintText"></div>
+        <canvas id="board" width="900" height="600"></canvas>
+        <div id="drawTools" class="toolbar hidden">
+          <button class="secondary" data-size="4">Thin</button><button class="secondary" data-size="8">Medium</button><button class="secondary" data-size="14">Thick</button><button class="secondary" id="clearBtn">Clear</button>
+        </div>
+        <div id="guessTools" class="toolbar hidden"><input id="guessInput" placeholder="Type your guess"><button id="guessBtn">Guess</button></div>
+        <div class="status" id="gameStatus">—</div>
+      </div>
+      <div class="card">
+        <strong data-i="players">Players</strong><div id="players" class="players" style="margin-top:8px"></div>
+        <hr style="border:0;border-top:1px solid var(--line)">
+        <strong data-i="chatTitle">💬 Translated chat</strong>
+        <div id="chat" class="chat" style="margin-top:8px"></div>
+        <div class="chatrow"><input id="chatInput" placeholder="Message"><button id="chatBtn">Send</button></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+const WORDS=[
+["cat","con mèo"],["dog","con chó"],["umbrella","cái ô"],["sun","mặt trời"],["moon","mặt trăng"],
+["star","ngôi sao"],["flower","bông hoa"],["tree","cây"],["house","ngôi nhà"],["car","ô tô"],
+["bicycle","xe đạp"],["book","quyển sách"],["phone","điện thoại"],["coffee","cà phê"],["pizza","pizza"],
+["banana","quả chuối"],["apple","quả táo"],["bird","con chim"],["fish","con cá"],["rabbit","con thỏ"],
+["heart","trái tim"],["rain","mưa"],["rainbow","cầu vồng"],["mountain","ngọn núi"],["beach","bãi biển"],
+["train","tàu hỏa"],["airplane","máy bay"],["camera","máy ảnh"],["gift","món quà"],["cake","bánh ngọt"],
+["key","chìa khóa"],["shoes","đôi giày"],["hat","cái mũ"],["glasses","kính"],["ring","chiếc nhẫn"],
+["kiss","nụ hôn"],["hug","cái ôm"],["love","tình yêu"]
+];
+const T={
+en:{brand:"🎨 Scribble Date 💕",sub:"Draw • Guess • Translate • Laugh",title:"A tiny game made for two",desc:"Each player sees the word in their own language. Guess in your own language. Chat is translated too.",createTitle:"Create room",joinTitle:"Join room",nameLabel:"Your name",nameLabel2:"Your name",yourLang:"Your language",yourLang2:"Your language",createBtn:"Create room",joinBtn:"Join room",roomCodeLabel:"Room code",copy:"Copy code",waiting:"Waiting for your friend…",guestWaiting:"You are connected. The host will start the game 💗",start:"Start game",players:"Players",chatTitle:"💬 Translated chat",waitingHost:"Waiting for the host…",connected:"Your friend is connected 💗",draw:"Your turn — draw!",guessTurn:"Your turn — guess!",drawHint:"Draw the word without typing it!",guessHint:"Type your guess in your language.",correct:"🎉 Correct!",tryAgain:"Try again!",connection:"Connecting…",codeNeeded:"Enter the room code."},
+vi:{brand:"🎨 Hẹn hò vẽ tranh 💕",sub:"Vẽ • Đoán • Dịch • Cười",title:"Một trò chơi nhỏ dành cho hai người",desc:"Mỗi người nhìn thấy từ bằng ngôn ngữ của mình. Đoán bằng ngôn ngữ của bạn. Tin nhắn cũng được dịch.",createTitle:"Tạo phòng",joinTitle:"Tham gia phòng",nameLabel:"Tên của bạn",nameLabel2:"Tên của bạn",yourLang:"Ngôn ngữ của bạn",yourLang2:"Ngôn ngữ của bạn",createBtn:"Tạo phòng",joinBtn:"Tham gia phòng",roomCodeLabel:"Mã phòng",copy:"Sao chép mã",waiting:"Đang chờ bạn của bạn…",guestWaiting:"Bạn đã kết nối. Chủ phòng sẽ bắt đầu trò chơi 💗",start:"Bắt đầu trò chơi",players:"Người chơi",chatTitle:"💬 Trò chuyện đã dịch",waitingHost:"Đang chờ chủ phòng…",connected:"Bạn của bạn đã kết nối 💗",draw:"Lượt của bạn — hãy vẽ!",guessTurn:"Lượt của bạn — hãy đoán!",drawHint:"Hãy vẽ từ này mà không gõ từ đó!",guessHint:"Nhập đáp án bằng ngôn ngữ của bạn.",correct:"🎉 Chính xác!",tryAgain:"Thử lại nhé!",connection:"Đang kết nối…",codeNeeded:"Hãy nhập mã phòng."}
+};
+let uiLang="en",joinLang="vi",peer=null,conn=null,isHost=false,me=null,other=null,artistId=null,target=null,roomId="",drawing=false,last=null,brush=7;
+const $=id=>document.getElementById(id);
+function tx(k){return (T[uiLang]&&T[uiLang][k])||k}
+function applyUI(){
+document.querySelectorAll("[data-i]").forEach(el=>{const k=el.dataset.i;el.textContent=tx(k)});
+$("viTop").classList.toggle("activeLang",uiLang==="vi");$("enTop").classList.toggle("activeLang",uiLang==="en");
+$("joinVi").classList.toggle("activeLang",joinLang==="vi");$("joinEn").classList.toggle("activeLang",joinLang==="en");
+}
+function setUi(l){uiLang=l;applyUI();if(isHost&&me)me.lang=l;else if(!isHost&&me)me.lang=joinLang}
+function show(id){["home","lobby","game"].forEach(x=>$(x).classList.toggle("hidden",x!==id))}
+function setStatus(text,kind=""){$("lobbyStatus").textContent=text;$("lobbyStatus").className="status "+kind}
+function send(m){if(conn&&conn.open)conn.send(m)}
+function normalize(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").replace(/[^a-z0-9]+/g," ").trim()}
+function renderPlayers(ps){
+const el=$("players"),lp=$("lobbyPlayers");el.innerHTML="";lp.innerHTML="";
+(ps||[]).forEach(p=>{const d=document.createElement("div");d.className="player";d.textContent=p.name+" • "+(p.lang==="vi"?"🇻🇳":"🇬🇧");el.appendChild(d);lp.appendChild(d.cloneNode(true))});
+}
+function setupConnection(c){
+conn=c;
+c.on("open",()=>{send({t:"hello",player:me});if(!isHost)setStatus(tx("connection"));});
+c.on("data",handle);
+c.on("error",e=>{setStatus("Connection error: "+e.type,"bad");});
+c.on("close",()=>{setStatus("Connection closed","bad")});
+}
+function makePeer(id){
+peer=new Peer(id,{host:"0.peerjs.com",port:443,path:"/",secure:true});
+peer.on("error",e=>{setStatus("Connection error: "+e.type,"bad");if(!isHost) alert("Could not connect to the room. Please check the code.");});
+return peer;
+}
+function createRoom(){
+isHost=true;me={id:"host-"+Math.random().toString(36).slice(2),name:$("hostName").value.trim()||"Harsh",lang:$("hostLang").value};
+applyUI();
+const id="SD"+Math.random().toString(36).slice(2,8).toUpperCase();roomId=id;
+makePeer(id);peer.on("open",opened=>{$("roomCode").textContent=opened.slice(2);show("lobby");setStatus(tx("waiting"));$("startBtn").disabled=true;$("guestWaiting").classList.add("hidden");});
+peer.on("connection",c=>{if(conn&&conn.open){c.close();return}setupConnection(c);});
+}
+function joinRoom(){
+const code=$("roomInput").value.trim().toUpperCase();if(!code){alert(tx("codeNeeded"));return}
+isHost=false;me={id:"guest-"+Math.random().toString(36).slice(2),name:$("guestName").value.trim()||"My Love",lang:joinLang};show("lobby");$("hostControls").classList.add("hidden");$("guestWaiting").classList.remove("hidden");setStatus(tx("connection"));
+makePeer();peer.on("open",()=>{setupConnection(peer.connect("SD"+code,{reliable:true}));});
+}
+function handle(m){
+if(!m||!m.t)return;
+if(m.t==="hello"&&isHost){
+other=m.player;renderPlayers([me,{...other,score:0}]);setStatus(tx("connected"),"ok");$("startBtn").disabled=false;send({t:"welcome",host:me,guest:{...other,score:0}});
+}
+if(m.t==="welcome"&&!isHost){other=m.guest;renderPlayers([m.host,other]);setStatus(tx("guestWaiting"),"ok");}
+if(m.t==="start"){artistId=m.artistId;target=m.target;renderPlayers(m.players);startTurn();}
+if(m.t==="draw"){drawLine(m.a,m.b,false);}
+if(m.t==="clear"){ctx.clearRect(0,0,900,600);}
+if(m.t==="guess"&&isHost){const ok=[target[0],target[1]].some(x=>normalize(m.g)===normalize(x));if(ok){$("gameStatus").textContent=tx("correct");send({t:"guessResult",correct:true});}else{send({t:"guessResult",correct:false});}}
+if(m.t==="guessResult"){ $("gameStatus").textContent=m.correct?tx("correct"):tx("tryAgain"); }
+if(m.t==="chat"){addChat(m.name,m.text,m.translated);}
+}
+function startGameHost(){
+target=WORDS[Math.floor(Math.random()*WORDS.length)];
+artistId=me.id;
+send({t:"start",artistId,target,players:[me,{...other,score:0}]});
+startTurn();
+}
+function startTurn(){
+show("game");const iAmArtist=me.id===artistId;
+$("turnText").textContent=iAmArtist?tx("draw"):tx("guessTurn");
+$("wordText").textContent=iAmArtist?(me.lang==="vi"?target[1]:target[0]):"🤔";
+$("hintText").textContent=iAmArtist?tx("drawHint"):tx("guessHint");
+$("drawTools").classList.toggle("hidden",!iAmArtist);$("guessTools").classList.toggle("hidden",iAmArtist);
+if(!iAmArtist)$("guessInput").focus();drawing=iAmArtist;ctx.clearRect(0,0,900,600);
+}
+const canvas=$("board"),ctx=canvas.getContext("2d");
+function point(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*900/r.width,y:(e.clientY-r.top)*600/r.height}}
+function drawLine(a,b,emit=true){ctx.strokeStyle="#29232b";ctx.lineWidth=brush;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();if(emit)send({t:"draw",a,b})}
+canvas.addEventListener("pointerdown",e=>{if(!drawing)return;canvas.setPointerCapture(e.pointerId);last=point(e)});
+canvas.addEventListener("pointermove",e=>{if(!drawing||!last)return;const p=point(e);drawLine(last,p);last=p});
+canvas.addEventListener("pointerup",()=>last=null);
+document.querySelectorAll("[data-size]").forEach(b=>b.onclick=()=>brush=+b.dataset.size);
+$("clearBtn").onclick=()=>{ctx.clearRect(0,0,900,600);send({t:"clear"})};
+$("guessBtn").onclick=()=>{const g=$("guessInput").value.trim();if(!g)return;$("guessInput").value="";send({t:"guess",g})};
+$("guessInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("guessBtn").click()});
+async function translate(text,from,to){if(!text||from===to)return text;try{const url="https://translate.googleapis.com/translate_a/single?client=gtx&sl="+from+"&tl="+to+"&dt=t&q="+encodeURIComponent(text);const j=await (await fetch(url)).json();return j[0].map(x=>x[0]).join("")||text}catch(e){return text}}
+function addChat(name,text,translated){const box=$("chat");const d=document.createElement("div");d.className="msg";d.innerHTML="<div class='who'>"+escapeHtml(name)+"</div><div>"+escapeHtml(text)+"</div><div class='trans'>"+escapeHtml(translated||text)+"</div>";box.appendChild(d);box.scrollTop=box.scrollHeight}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+$("chatBtn").onclick=async()=>{const text=$("chatInput").value.trim();if(!text)return;$("chatInput").value="";const translated=await translate(text,me.lang,other?.lang||"en");addChat(me.name,text,translated);send({t:"chat",name:me.name,text,translated})};
+$("createBtn").onclick=createRoom;$("joinBtn").onclick=joinRoom;
+$("startBtn").onclick=startGameHost;
+$("copyBtn").onclick=async()=>{try{await navigator.clipboard.writeText($("roomCode").textContent);$("copyBtn").textContent="✓";setTimeout(()=>$("copyBtn").textContent=tx("copy"),1000)}catch(e){}};
+$("enTop").onclick=()=>setUi("en");$("viTop").onclick=()=>setUi("vi");
+$("joinVi").onclick=()=>{joinLang="vi";if(!isHost&&me)me.lang="vi";applyUI()};
+$("joinEn").onclick=()=>{joinLang="en";if(!isHost&&me)me.lang="en";applyUI()};
+applyUI();
+</script>
+</body></html>
