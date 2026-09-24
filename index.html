@@ -138,7 +138,14 @@ c.on("error",e=>{setStatus("Connection error: "+e.type,"bad");});
 c.on("close",()=>{setStatus("Connection closed","bad")});
 }
 function makePeer(id){
-peer=new Peer(id,{host:"0.peerjs.com",port:443,path:"/",secure:true});
+const iceServers=[
+  {urls:"stun:stun.relay.metered.ca:80"},
+  {urls:"turn:openrelay.metered.ca:80",username:"openrelayproject",credential:"openrelayproject"},
+  {urls:"turn:openrelay.metered.ca:80?transport=tcp",username:"openrelayproject",credential:"openrelayproject"},
+  {urls:"turn:openrelay.metered.ca:443",username:"openrelayproject",credential:"openrelayproject"},
+  {urls:"turns:openrelay.metered.ca:443?transport=tcp",username:"openrelayproject",credential:"openrelayproject"}
+];
+peer=new Peer(id,{host:"0.peerjs.com",port:443,path:"/",secure:true,config:{iceServers}});
 peer.on("error",e=>{setStatus("Connection error: "+e.type,"bad");if(!isHost) alert("Could not connect to the room. Please check the code.");});
 return peer;
 }
