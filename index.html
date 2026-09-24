@@ -66,7 +66,7 @@ canvas{display:block;width:100%;background:#fff;border:1px solid var(--line);bor
     <div class="status" id="lobbyStatus" data-i="waiting">Waiting for your friend…</div>
     <div id="lobbyPlayers" class="players"></div>
     <div id="hostControls">
-      <button id="startBtn" disabled data-i="start">Start game</button>
+      <button id="startBtn" data-i="start">Start game</button>
     </div>
     <div id="guestWaiting" class="small hidden" data-i="guestWaiting">You are connected. The host will start the game 💗</div>
   </section>
@@ -130,7 +130,7 @@ const el=$("players"),lp=$("lobbyPlayers");el.innerHTML="";lp.innerHTML="";
 }
 function setupConnection(c){
 conn=c;
-c.on("open",()=>{send({t:"hello",player:me});if(!isHost)setStatus(tx("connection"));});
+c.on("open",()=>{setStatus(isHost?tx("waiting"):tx("connection"));send({t:"hello",player:me});});
 c.on("data",handle);
 c.on("error",e=>{setStatus("Connection error: "+e.type,"bad");});
 c.on("close",()=>{setStatus("Connection closed","bad")});
@@ -144,7 +144,7 @@ function createRoom(){
 isHost=true;me={id:"host-"+Math.random().toString(36).slice(2),name:$("hostName").value.trim()||"Harsh",lang:$("hostLang").value};
 applyUI();
 const id="SD"+Math.random().toString(36).slice(2,8).toUpperCase();roomId=id;
-makePeer(id);peer.on("open",opened=>{$("roomCode").textContent=opened.slice(2);show("lobby");setStatus(tx("waiting"));$("startBtn").disabled=true;$("guestWaiting").classList.add("hidden");});
+makePeer(id);peer.on("open",opened=>{$("roomCode").textContent=opened.slice(2);show("lobby");setStatus(tx("waiting"));$("startBtn").disabled=false;$("guestWaiting").classList.add("hidden");});
 peer.on("connection",c=>{if(conn&&conn.open){c.close();return}setupConnection(c);});
 }
 function joinRoom(){
@@ -166,9 +166,10 @@ if(m.t==="guessResult"){ $("gameStatus").textContent=m.correct?tx("correct"):tx(
 if(m.t==="chat"){addChat(m.name,m.text,m.translated);}
 }
 function startGameHost(){
+if(!conn||!conn.open){setStatus("The other player is not connected yet.","bad");return}
 target=WORDS[Math.floor(Math.random()*WORDS.length)];
 artistId=me.id;
-send({t:"start",artistId,target,players:[me,{...other,score:0}]});
+send({t:"start",artistId:me.id,target,players:[me,{...other,score:0}]});
 startTurn();
 }
 function startTurn(){
