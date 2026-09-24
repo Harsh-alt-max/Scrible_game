@@ -31,7 +31,7 @@ canvas{display:block;width:100%;background:#fff;border:1px solid var(--line);bor
 <div class="wrap">
   <div class="top">
     <div><div class="brand" data-i="brand">🎨 Scribble Date 💕</div><div class="sub" data-i="sub">Draw • Guess • Translate • Laugh</div></div>
-    <div class="langbar"><button id="enTop">🇬🇧 English</button><button id="viTop">🇻🇳 Tiếng Việt</button></div>
+    <div class="langbar"><button id="enTop">🇮🇳 English</button><button id="viTop">🇻🇳 Tiếng Việt</button></div>
   </div>
 
   <section id="home" class="card hero">
@@ -44,7 +44,7 @@ canvas{display:block;width:100%;background:#fff;border:1px solid var(--line);bor
         <label data-i="nameLabel">Your name</label>
         <input id="hostName" value="Harsh">
         <label data-i="yourLang">Your language</label>
-        <select id="hostLang"><option value="en">🇬🇧 English</option><option value="vi">🇻🇳 Tiếng Việt</option></select>
+        <select id="hostLang"><option value="en">🇮🇳 English</option><option value="vi">🇻🇳 Tiếng Việt</option></select>
         <button id="createBtn" data-i="createBtn">Create room</button>
       </div>
       <div class="card">
@@ -52,7 +52,7 @@ canvas{display:block;width:100%;background:#fff;border:1px solid var(--line);bor
         <label data-i="nameLabel2">Your name</label>
         <input id="guestName" value="My Love">
         <label data-i="yourLang2">Your language</label>
-        <div class="langbar" style="margin-bottom:5px"><button id="joinVi">🇻🇳 Tiếng Việt</button><button id="joinEn">🇬🇧 English</button></div>
+        <div class="langbar" style="margin-bottom:5px"><button id="joinVi">🇻🇳 Tiếng Việt</button><button id="joinEn">🇮🇳 English</button></div>
         <input id="roomInput" placeholder="Room code">
         <button id="joinBtn" data-i="joinBtn">Join room</button>
       </div>
@@ -79,7 +79,7 @@ canvas{display:block;width:100%;background:#fff;border:1px solid var(--line);bor
         <div class="small" id="hintText"></div>
         <canvas id="board" width="900" height="600"></canvas>
         <div id="drawTools" class="toolbar hidden">
-          <button class="secondary" data-size="4">Thin</button><button class="secondary" data-size="8">Medium</button><button class="secondary" data-size="14">Thick</button><button class="secondary" id="clearBtn">Clear</button>
+          <button class="secondary" data-size="4">Thin</button><button class="secondary" data-size="8">Medium</button><button class="secondary" data-size="14">Thick</button><button class="secondary" data-color="#29232b">⚫</button><button class="secondary" data-color="#e53935">🔴</button><button class="secondary" data-color="#1e88e5">🔵</button><button class="secondary" data-color="#43a047">🟢</button><button class="secondary" data-color="#f9a825">🟡</button><button class="secondary" data-color="#8e24aa">🟣</button><button class="secondary" id="clearBtn">Clear</button>
         </div>
         <div id="guessTools" class="toolbar hidden"><input id="guessInput" placeholder="Type your guess"><button id="guessBtn">Guess</button></div>
         <div class="status" id="gameStatus">—</div>
@@ -111,7 +111,7 @@ const T={
 en:{brand:"🎨 Scribble Date 💕",sub:"Draw • Guess • Translate • Laugh",title:"A tiny game made for two",desc:"Each player sees the word in their own language. Guess in your own language. Chat is translated too.",createTitle:"Create room",joinTitle:"Join room",nameLabel:"Your name",nameLabel2:"Your name",yourLang:"Your language",yourLang2:"Your language",createBtn:"Create room",joinBtn:"Join room",roomCodeLabel:"Room code",copy:"Copy code",waiting:"Waiting for your friend…",guestWaiting:"You are connected. The host will start the game 💗",start:"Start game",players:"Players",chatTitle:"💬 Translated chat",waitingHost:"Waiting for the host…",connected:"Your friend is connected 💗",draw:"Your turn — draw!",guessTurn:"Your turn — guess!",drawHint:"Draw the word without typing it!",guessHint:"Type your guess in your language.",correct:"🎉 Correct!",tryAgain:"Try again!",connection:"Connecting…",codeNeeded:"Enter the room code."},
 vi:{brand:"🎨 Hẹn hò vẽ tranh 💕",sub:"Vẽ • Đoán • Dịch • Cười",title:"Một trò chơi nhỏ dành cho hai người",desc:"Mỗi người nhìn thấy từ bằng ngôn ngữ của mình. Đoán bằng ngôn ngữ của bạn. Tin nhắn cũng được dịch.",createTitle:"Tạo phòng",joinTitle:"Tham gia phòng",nameLabel:"Tên của bạn",nameLabel2:"Tên của bạn",yourLang:"Ngôn ngữ của bạn",yourLang2:"Ngôn ngữ của bạn",createBtn:"Tạo phòng",joinBtn:"Tham gia phòng",roomCodeLabel:"Mã phòng",copy:"Sao chép mã",waiting:"Đang chờ bạn của bạn…",guestWaiting:"Bạn đã kết nối. Chủ phòng sẽ bắt đầu trò chơi 💗",start:"Bắt đầu trò chơi",players:"Người chơi",chatTitle:"💬 Trò chuyện đã dịch",waitingHost:"Đang chờ chủ phòng…",connected:"Bạn của bạn đã kết nối 💗",draw:"Lượt của bạn — hãy vẽ!",guessTurn:"Lượt của bạn — hãy đoán!",drawHint:"Hãy vẽ từ này mà không gõ từ đó!",guessHint:"Nhập đáp án bằng ngôn ngữ của bạn.",correct:"🎉 Chính xác!",tryAgain:"Thử lại nhé!",connection:"Đang kết nối…",codeNeeded:"Hãy nhập mã phòng."}
 };
-let uiLang="en",joinLang="vi",peer=null,conn=null,isHost=false,me=null,other=null,artistId=null,target=null,roomId="",drawing=false,last=null,brush=7;
+let uiLang="en",joinLang="vi",peer=null,conn=null,isHost=false,me=null,other=null,artistId=null,target=null,roomId="",drawing=false,last=null,brush=7,round=0,scores={};
 const $=id=>document.getElementById(id);
 function tx(k){return (T[uiLang]&&T[uiLang][k])||k}
 function applyUI(){
@@ -126,7 +126,7 @@ function send(m){if(conn&&conn.open)conn.send(m)}
 function normalize(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").replace(/[^a-z0-9]+/g," ").trim()}
 function renderPlayers(ps){
 const el=$("players"),lp=$("lobbyPlayers");el.innerHTML="";lp.innerHTML="";
-(ps||[]).forEach(p=>{const d=document.createElement("div");d.className="player";d.textContent=p.name+" • "+(p.lang==="vi"?"🇻🇳":"🇬🇧");el.appendChild(d);lp.appendChild(d.cloneNode(true))});
+(ps||[]).forEach(p=>{const d=document.createElement("div");d.className="player";d.textContent=p.name+" • "+(p.lang==="vi"?"🇻🇳":"🇮🇳");el.appendChild(d);lp.appendChild(d.cloneNode(true))});
 }
 function setupConnection(c){
 conn=c;
@@ -152,16 +152,16 @@ const code=$("roomInput").value.trim().toUpperCase();if(!code){alert(tx("codeNee
 isHost=false;me={id:"guest-"+Math.random().toString(36).slice(2),name:$("guestName").value.trim()||"My Love",lang:joinLang};show("lobby");$("hostControls").classList.add("hidden");$("guestWaiting").classList.remove("hidden");setStatus(tx("connection"));
 makePeer();peer.on("open",()=>{setupConnection(peer.connect("SD"+code,{reliable:true}));});
 }
-function handle(m){
+function nextRound(){\n  round++; artistId=(artistId===me.id?other.id:me.id); target=WORDS[Math.floor(Math.random()*WORDS.length)];\n  send({t:"nextRound",artistId,target,round,scores}); startTurn();\n}\nfunction handle(m){
 if(!m||!m.t)return;
 if(m.t==="hello"&&isHost){
 other=m.player;renderPlayers([me,{...other,score:0}]);setStatus(tx("connected"),"ok");$("startBtn").disabled=false;send({t:"welcome",host:me,guest:{...other,score:0}});
 }
 if(m.t==="welcome"&&!isHost){other=m.guest;renderPlayers([m.host,other]);setStatus(tx("guestWaiting"),"ok");}
-if(m.t==="start"){artistId=m.artistId;target=m.target;renderPlayers(m.players);startTurn();}
+if(m.t==="start"){artistId=m.artistId;target=m.target;round=1;scores={};(m.players||[]).forEach(p=>scores[p.id]=0);renderPlayers(m.players);startTurn();}\nif(m.t==="nextRound"){artistId=m.artistId;target=m.target;round=m.round||round+1;scores=m.scores||scores;renderPlayers([me,{...other,score:scores[other?.id]||0}]);startTurn();}
 if(m.t==="draw"){drawLine(m.a,m.b,false);}
 if(m.t==="clear"){ctx.clearRect(0,0,900,600);}
-if(m.t==="guess"&&isHost){const ok=[target[0],target[1]].some(x=>normalize(m.g)===normalize(x));if(ok){$("gameStatus").textContent=tx("correct");send({t:"guessResult",correct:true});}else{send({t:"guessResult",correct:false});}}
+if(m.t==="guess"&&isHost){const ok=[target[0],target[1]].some(x=>normalize(m.g)===normalize(x));if(ok){scores[me.id]=(scores[me.id]||0)+1;$("gameStatus").textContent=tx("correct");send({t:"guessResult",correct:true,scores});setTimeout(nextRound,1200);}else{send({t:"guessResult",correct:false});}}
 if(m.t==="guessResult"){ $("gameStatus").textContent=m.correct?tx("correct"):tx("tryAgain"); }
 if(m.t==="chat"){addChat(m.name,m.text,m.translated);}
 }
@@ -182,11 +182,11 @@ if(!iAmArtist)$("guessInput").focus();drawing=iAmArtist;ctx.clearRect(0,0,900,60
 }
 const canvas=$("board"),ctx=canvas.getContext("2d");
 function point(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*900/r.width,y:(e.clientY-r.top)*600/r.height}}
-function drawLine(a,b,emit=true){ctx.strokeStyle="#29232b";ctx.lineWidth=brush;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();if(emit)send({t:"draw",a,b})}
+let brushColor="#29232b";\nfunction drawLine(a,b,emit=true){ctx.strokeStyle=brushColor;ctx.lineWidth=brush;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();if(emit)send({t:"draw",a,b})}
 canvas.addEventListener("pointerdown",e=>{if(!drawing)return;canvas.setPointerCapture(e.pointerId);last=point(e)});
 canvas.addEventListener("pointermove",e=>{if(!drawing||!last)return;const p=point(e);drawLine(last,p);last=p});
 canvas.addEventListener("pointerup",()=>last=null);
-document.querySelectorAll("[data-size]").forEach(b=>b.onclick=()=>brush=+b.dataset.size);
+document.querySelectorAll("[data-size]").forEach(b=>b.onclick=()=>brush=+b.dataset.size);\ndocument.querySelectorAll("[data-color]").forEach(b=>b.onclick=()=>brushColor=b.dataset.color);
 $("clearBtn").onclick=()=>{ctx.clearRect(0,0,900,600);send({t:"clear"})};
 $("guessBtn").onclick=()=>{const g=$("guessInput").value.trim();if(!g)return;$("guessInput").value="";send({t:"guess",g})};
 $("guessInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("guessBtn").click()});
