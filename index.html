@@ -85,7 +85,7 @@ canvas{display:block;width:100%;background:#fff;border:1px solid var(--line);bor
           <button class="secondary" data-eraser-size="8">🧽 <span data-i="eraserSmall">Small</span></button><button class="secondary" data-eraser-size="18">🧽 <span data-i="eraserMedium">Medium</span></button><button class="secondary" data-eraser-size="32">🧽 <span data-i="eraserLarge">Large</span></button>
           <button class="secondary" id="clearBtn" data-i="clear">Clear</button>
         </div>
-        <div id="guessTools" class="toolbar hidden"><input id="guessInput" data-placeholder-i="guessPlaceholder" placeholder="Type your guess"><button id="guessBtn" data-i="guessButton">Guess</button></div>
+        <div id="guessTools" class="toolbar hidden"><input id="guessInput" data-placeholder-i="guessPlaceholder" placeholder="Type your guess"><button id="guessBtn" data-i="guessButton">Guess</button><button class="secondary" id="passBtn" data-i="passButton">Pass (-1)</button></div>
         <div class="status" id="gameStatus">—</div>
       </div>
       <div class="card">
@@ -114,8 +114,8 @@ const WORDS=[
 ["cloud","đám mây"],["lollipop","kẹo mút"],["cupcake","bánh cupcake"],["panda","gấu trúc"],["cherry","quả anh đào"],["butterfly","con bướm"]
 ];
 const T={
-en:{brand:"🎨 Scribble Date 💕",sub:"Draw • Guess • Translate • Laugh",title:"A tiny game made for two",desc:"Each player sees the word in their own language. Guess in your own language. Chat is translated too.",createTitle:"Create room",joinTitle:"Join room",nameLabel:"Your name",nameLabel2:"Your name",yourLang:"Your language",yourLang2:"Your language",createBtn:"Create room",joinBtn:"Join room",guessPlaceholder:"Type your guess",guessButton:"Guess",chatPlaceholder:"Message",sendButton:"Send",roomCodeLabel:"Room code",copy:"Copy code",waiting:"Waiting for your friend…",guestWaiting:"You are connected. The host will start the game 💗",start:"Start game",players:"Players",chatTitle:"💬 Translated chat",waitingHost:"Waiting for the host…",connected:"Your friend is connected 💗",draw:"Your turn — draw!",guessTurn:"Your turn — guess!",drawHint:"Draw the word without typing it!",guessHint:"Type your guess in your language.",correct:"🎉 Correct!",tryAgain:"Try again!",incorrect:"Not quite — try again!",finished:"💗 Game finished!",connection:"Connecting…",codeNeeded:"Enter the room code.",thin:"Thin",medium:"Medium",thick:"Thick",eraserSmall:"Small eraser",eraserMedium:"Medium eraser",eraserLarge:"Large eraser",clear:"Clear",round:"Round",english:"English",vietnamese:"Tiếng Việt",messageSent:"Message sent"},
-vi:{brand:"🎨 Hẹn hò vẽ tranh 💕",sub:"Vẽ • Đoán • Dịch • Cười",title:"Một trò chơi nhỏ dành cho hai người",desc:"Mỗi người nhìn thấy từ bằng ngôn ngữ của mình. Đoán bằng ngôn ngữ của bạn. Tin nhắn cũng được dịch.",createTitle:"Tạo phòng",joinTitle:"Tham gia phòng",nameLabel:"Tên của bạn",nameLabel2:"Tên của bạn",yourLang:"Ngôn ngữ của bạn",yourLang2:"Ngôn ngữ của bạn",createBtn:"Tạo phòng",joinBtn:"Tham gia phòng",guessPlaceholder:"Nhập đáp án bằng ngôn ngữ của bạn",guessButton:"Đoán",chatPlaceholder:"Tin nhắn",sendButton:"Gửi",roomCodeLabel:"Mã phòng",copy:"Sao chép mã",waiting:"Đang chờ người bạn của bạn…",guestWaiting:"Bạn đã kết nối. Chủ phòng sẽ bắt đầu trò chơi 💗",start:"Bắt đầu trò chơi",players:"Người chơi",chatTitle:"💬 Trò chuyện đã dịch",waitingHost:"Đang chờ chủ phòng…",connected:"Bạn của bạn đã kết nối 💗",draw:"Lượt của bạn — hãy vẽ!",guessTurn:"Lượt của bạn — hãy đoán!",drawHint:"Hãy vẽ từ này mà không gõ từ đó!",guessHint:"Nhập đáp án bằng ngôn ngữ của bạn.",correct:"🎉 Chính xác!",tryAgain:"Thử lại nhé!",incorrect:"Chưa đúng — hãy thử lại!",finished:"💗 Trò chơi kết thúc!",connection:"Đang kết nối…",codeNeeded:"Hãy nhập mã phòng.",thin:"Nét mảnh",medium:"Nét vừa",thick:"Nét dày",eraserSmall:"Tẩy nhỏ",eraserMedium:"Tẩy vừa",eraserLarge:"Tẩy lớn",clear:"Xóa",round:"Vòng",english:"Tiếng Anh",vietnamese:"Tiếng Việt",messageSent:"Đã gửi tin nhắn"}
+en:{brand:"🎨 Scribble Date 💕",sub:"Draw • Guess • Translate • Laugh",title:"A tiny game made for two",desc:"Each player sees the word in their own language. Guess in your own language. Chat is translated too.",createTitle:"Create room",joinTitle:"Join room",nameLabel:"Your name",nameLabel2:"Your name",yourLang:"Your language",yourLang2:"Your language",createBtn:"Create room",joinBtn:"Join room",guessPlaceholder:"Type your guess",guessButton:"Guess",passButton:"Pass (-1)",chatPlaceholder:"Message",sendButton:"Send",roomCodeLabel:"Room code",copy:"Copy code",waiting:"Waiting for your friend…",guestWaiting:"You are connected. The host will start the game 💗",start:"Start game",players:"Players",chatTitle:"💬 Translated chat",waitingHost:"Waiting for the host…",connected:"Your friend is connected 💗",draw:"Your turn — draw!",guessTurn:"Your turn — guess!",drawHint:"Draw the word without typing it!",guessHint:"Type your guess in your language.",correct:"🎉 Correct!",tryAgain:"Try again!",incorrect:"Not quite — try again!",finished:"💗 Game finished!",connection:"Connecting…",codeNeeded:"Enter the room code.",thin:"Thin",medium:"Medium",thick:"Thick",eraserSmall:"Small eraser",eraserMedium:"Medium eraser",eraserLarge:"Large eraser",clear:"Clear",round:"Round",english:"English",vietnamese:"Tiếng Việt",messageSent:"Message sent",passed:"Passed — moving to the next round."},
+vi:{brand:"🎨 Hẹn hò vẽ tranh 💕",sub:"Vẽ • Đoán • Dịch • Cười",title:"Một trò chơi nhỏ dành cho hai người",desc:"Mỗi người nhìn thấy từ bằng ngôn ngữ của mình. Đoán bằng ngôn ngữ của bạn. Tin nhắn cũng được dịch.",createTitle:"Tạo phòng",joinTitle:"Tham gia phòng",nameLabel:"Tên của bạn",nameLabel2:"Tên của bạn",yourLang:"Ngôn ngữ của bạn",yourLang2:"Ngôn ngữ của bạn",createBtn:"Tạo phòng",joinBtn:"Tham gia phòng",guessPlaceholder:"Nhập đáp án bằng ngôn ngữ của bạn",guessButton:"Đoán",passButton:"Bỏ qua (-1)",chatPlaceholder:"Tin nhắn",sendButton:"Gửi",roomCodeLabel:"Mã phòng",copy:"Sao chép mã",waiting:"Đang chờ người bạn của bạn…",guestWaiting:"Bạn đã kết nối. Chủ phòng sẽ bắt đầu trò chơi 💗",start:"Bắt đầu trò chơi",players:"Người chơi",chatTitle:"💬 Trò chuyện đã dịch",waitingHost:"Đang chờ chủ phòng…",connected:"Bạn của bạn đã kết nối 💗",draw:"Lượt của bạn — hãy vẽ!",guessTurn:"Lượt của bạn — hãy đoán!",drawHint:"Hãy vẽ từ này mà không gõ từ đó!",guessHint:"Nhập đáp án bằng ngôn ngữ của bạn.",correct:"🎉 Chính xác!",tryAgain:"Thử lại nhé!",incorrect:"Chưa đúng — hãy thử lại!",finished:"💗 Trò chơi kết thúc!",connection:"Đang kết nối…",codeNeeded:"Hãy nhập mã phòng.",thin:"Nét mảnh",medium:"Nét vừa",thick:"Nét dày",eraserSmall:"Tẩy nhỏ",eraserMedium:"Tẩy vừa",eraserLarge:"Tẩy lớn",clear:"Xóa",round:"Vòng",english:"Tiếng Anh",vietnamese:"Tiếng Việt",messageSent:"Đã gửi tin nhắn",passed:"Đã bỏ qua — chuyển sang vòng tiếp theo."}
 };
 let uiLang="en",joinLang="vi",client=null,sendQueue=Promise.resolve(),drawSeq=0,isHost=false,me=null,other=null,artistId=null,target=null,roomId="",roomTopic="",drawing=false,last=null,brush=7,brushColor="#29232b",round=0,scores={},maxRounds=50,wordIndex=0,wordQueue=[],connected=false;
 
@@ -128,10 +128,23 @@ function applyUI(){
   $("joinVi").classList.toggle("activeLang",joinLang==="vi");$("joinEn").classList.toggle("activeLang",joinLang==="en");
   if($("roundText")&&round) $("roundText").textContent=(uiLang==="vi"?"Vòng ":"Round ")+round+" / "+maxRounds;
 }
-function setUi(l){uiLang=l;applyUI();if(round&&$("roundText"))$("roundText").textContent=tx("round")+" "+round+" / "+maxRounds}
+function setUi(l){uiLang=l;applyUI();if(round&&$("roundText")){const iAmArtist=me&&artistId&&me.id===artistId;$("turnText").textContent=iAmArtist?tx("draw"):tx("guessTurn");$("hintText").textContent=iAmArtist?tx("drawHint"):tx("guessHint");$("roundText").textContent=tx("round")+" "+round+" / "+maxRounds}}
 function show(id){["home","lobby","game"].forEach(x=>$(x).classList.toggle("hidden",x!==id))}
 function setStatus(text,kind=""){ $("lobbyStatus").textContent=text;$("lobbyStatus").className="status "+kind }
 function normalize(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").replace(/[^a-z0-9]+/g," ").trim()}
+const VI_CLASSIFIERS=["con","cái","quả","chiếc","đôi","ngôi","bông","cái","chiếc"];
+function answerVariants(s){
+  const n=normalize(s);
+  const out=new Set([n]);
+  let words=n.split(" ");
+  while(words.length>1&&VI_CLASSIFIERS.includes(words[0])){words.shift();out.add(words.join(" "))}
+  return [...out];
+}
+function isCorrectGuess(guess){
+  const g=normalize(guess);
+  if(!g)return false;
+  return target.some(answer=>answerVariants(answer).some(v=>v===g));
+}
 function renderPlayers(ps){
   const el=$("players"),lp=$("lobbyPlayers"),sb=$("scoreboard");el.innerHTML="";lp.innerHTML="";if(sb)sb.innerHTML="";
   (ps||[]).forEach(p=>{
@@ -236,18 +249,36 @@ function handle(m){
   if(m.t==="stroke"){renderStroke(m.points,m.color,m.size);return}
   if(m.t==="clear"){ctx.clearRect(0,0,900,600);return}
   if(m.t==="guess"&&isHost){
-    const ok=[target[0],target[1]].some(x=>normalize(m.g)===normalize(x));
+    const ok=isCorrectGuess(m.g);
     if(ok){
       scores[m.from]=(scores[m.from]||0)+1;
       send({t:"guessResult",correct:true,scores});
       renderPlayers([{...me,score:scores[me.id]||0},{...other,score:scores[other.id]||0}]);
+      $("gameStatus").textContent=tx("correct");
       setTimeout(advanceRound,1200);
-    }else send({t:"guessResult",correct:false});
+    }else{
+      send({t:"guessResult",correct:false});
+      if(m.from===me.id)$("gameStatus").textContent=tx("incorrect");
+    }
+    return;
+  }
+  if(m.t==="pass"&&isHost){
+    scores[m.from]=Math.max(0,(scores[m.from]||0)-1);
+    send({t:"passResult",scores});
+    renderPlayers([{...me,score:scores[me.id]||0},{...other,score:scores[other.id]||0}]);
+    if(m.from===me.id)$("gameStatus").textContent=tx("passed");
+    setTimeout(advanceRound,700);
     return;
   }
   if(m.t==="guessResult"){
     $("gameStatus").textContent=m.correct?tx("correct"):tx("incorrect");
     if(m.scores){scores=m.scores;renderPlayers([{...me,score:scores[me.id]||0},{...other,score:scores[other.id]||0}])}
+    return;
+  }
+  if(m.t==="passResult"){
+    scores=m.scores||scores;
+    $("gameStatus").textContent=tx("passed");
+    renderPlayers([{...me,score:scores[me.id]||0},{...other,score:scores[other.id]||0}]);
     return;
   }
   if(m.t==="gameOver"){scores=m.scores||scores;showFinal(scores);return}
@@ -260,6 +291,16 @@ function handle(m){
 function startGameHost(){
   if(!connected||!other){setStatus("The other player is not connected yet.","bad");return}
   beginFirstRound();
+}
+function submitGuess(){
+  const g=$("guessInput").value.trim();if(!g)return;
+  $("guessInput").value="";
+  if(isHost)handle({t:"guess",g,from:me.id});
+  else send({t:"guess",g});
+}
+function passGuess(){
+  if(isHost)handle({t:"pass",from:me.id});
+  else send({t:"pass"});
 }
 function startTurn(){
   drawSeq=0;
@@ -305,7 +346,8 @@ document.querySelectorAll("[data-size]").forEach(b=>b.onclick=()=>{brush=+b.data
 document.querySelectorAll("[data-color]").forEach(b=>b.onclick=()=>{brushColor=b.dataset.color});
 document.querySelectorAll("[data-eraser-size]").forEach(b=>b.onclick=()=>{brush=+b.dataset.eraserSize;brushColor="__ERASER__"});
 $("clearBtn").onclick=()=>{ctx.clearRect(0,0,900,600);send({t:"clear"})};
-$("guessBtn").onclick=()=>{const g=$("guessInput").value.trim();if(!g)return;$("guessInput").value="";send({t:"guess",g})};
+$("guessBtn").onclick=submitGuess;
+$("passBtn").onclick=passGuess;
 $("guessInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("guessBtn").click()});
 async function translate(text,from,to){
   if(!text)return text;
