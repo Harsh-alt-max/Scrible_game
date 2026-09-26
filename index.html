@@ -80,7 +80,10 @@ canvas{display:block;width:100%;background:#fff;border:1px solid var(--line);bor
         <div class="small" id="hintText"></div>
         <canvas id="board" width="900" height="600"></canvas>
         <div id="drawTools" class="toolbar hidden">
-          <button class="secondary" data-size="4" data-i="thin">Thin</button><button class="secondary" data-size="8" data-i="medium">Medium</button><button class="secondary" data-size="14" data-i="thick">Thick</button><button class="secondary" data-color="#29232b">⚫</button><button class="secondary" data-color="#e53935">🔴</button><button class="secondary" data-color="#1e88e5">🔵</button><button class="secondary" data-color="#43a047">🟢</button><button class="secondary" data-color="#f9a825">🟡</button><button class="secondary" data-color="#8e24aa">🟣</button><button class="secondary" id="clearBtn" data-i="clear">Clear</button>
+          <button class="secondary" data-size="4" data-i="thin">Thin</button><button class="secondary" data-size="8" data-i="medium">Medium</button><button class="secondary" data-size="14" data-i="thick">Thick</button>
+          <button class="secondary" data-color="#29232b">⚫</button><button class="secondary" data-color="#e53935">🔴</button><button class="secondary" data-color="#1e88e5">🔵</button><button class="secondary" data-color="#43a047">🟢</button><button class="secondary" data-color="#f9a825">🟡</button><button class="secondary" data-color="#8e24aa">🟣</button><button class="secondary" data-color="#fb8c00">🟠</button><button class="secondary" data-color="#ec407a">🩷</button><button class="secondary" data-color="#795548">🟤</button><button class="secondary" data-color="#00acc1">🩵</button>
+          <button class="secondary" data-eraser-size="8">🧽 <span data-i="eraserSmall">Small</span></button><button class="secondary" data-eraser-size="18">🧽 <span data-i="eraserMedium">Medium</span></button><button class="secondary" data-eraser-size="32">🧽 <span data-i="eraserLarge">Large</span></button>
+          <button class="secondary" id="clearBtn" data-i="clear">Clear</button>
         </div>
         <div id="guessTools" class="toolbar hidden"><input id="guessInput" data-placeholder-i="guessPlaceholder" placeholder="Type your guess"><button id="guessBtn" data-i="guessButton">Guess</button></div>
         <div class="status" id="gameStatus">—</div>
@@ -101,18 +104,18 @@ canvas{display:block;width:100%;background:#fff;border:1px solid var(--line);bor
 const WORDS=[
 ["cat","con mèo"],["dog","con chó"],["sun","mặt trời"],["star","ngôi sao"],["tree","cây"],
 ["house","ngôi nhà"],["car","ô tô"],["book","quyển sách"],["fish","con cá"],["flower","bông hoa"],
-["umbrella","cái ô"],["bicycle","xe đạp"],["phone","điện thoại"],["coffee","cà phê"],["banana","quả chuối"],
+["ball","quả bóng"],["cup","cái cốc"],["spoon","cái thìa"],["milk","sữa"],["egg","trứng"],
 ["apple","quả táo"],["bird","con chim"],["rabbit","con thỏ"],["heart","trái tim"],["rainbow","cầu vồng"],
 ["pizza","pizza"],["cake","bánh ngọt"],["gift","món quà"],["camera","máy ảnh"],["shoes","đôi giày"],
 ["rain","mưa"],["moon","mặt trăng"],["hat","cái mũ"],["glasses","kính"],["key","chìa khóa"],
-["mountain","ngọn núi"],["airplane","máy bay"],["train","tàu hỏa"],["ring","chiếc nhẫn"],["kiss","nụ hôn"],
-["hug","cái ôm"],["love","tình yêu"],["ice cream","kem"],["balloon","bóng bay"],["teddy bear","gấu bông"],
-["toothbrush","bàn chải đánh răng"],["toothpaste","kem đánh răng"],["scissors","cái kéo"],["crown","vương miện"],
+["phone","điện thoại"],["coffee","cà phê"],["banana","quả chuối"],["door","cánh cửa"],["bed","cái giường"],
+["kiss","nụ hôn"],["hug","cái ôm"],["love","tình yêu"],["ice cream","kem"],["balloon","bóng bay"],
+["teddy bear","gấu bông"],["shirt","áo"],["sock","tất"],["candy","kẹo"],["crown","vương miện"],
 ["cloud","đám mây"],["lollipop","kẹo mút"],["cupcake","bánh cupcake"],["panda","gấu trúc"],["cherry","quả anh đào"],["butterfly","con bướm"]
 ];
 const T={
-en:{brand:"🎨 Scribble Date 💕",sub:"Draw • Guess • Translate • Laugh",title:"A tiny game made for two",desc:"Each player sees the word in their own language. Guess in your own language. Chat is translated too.",createTitle:"Create room",joinTitle:"Join room",nameLabel:"Your name",nameLabel2:"Your name",yourLang:"Your language",yourLang2:"Your language",createBtn:"Create room",joinBtn:"Join room",guessPlaceholder:"Type your guess",guessButton:"Guess",chatPlaceholder:"Message",sendButton:"Send",roomCodeLabel:"Room code",copy:"Copy code",waiting:"Waiting for your friend…",guestWaiting:"You are connected. The host will start the game 💗",start:"Start game",players:"Players",chatTitle:"💬 Translated chat",waitingHost:"Waiting for the host…",connected:"Your friend is connected 💗",draw:"Your turn — draw!",guessTurn:"Your turn — guess!",drawHint:"Draw the word without typing it!",guessHint:"Type your guess in your language.",correct:"🎉 Correct!",tryAgain:"Try again!",incorrect:"Not quite — try again!",finished:"💗 Game finished!",connection:"Connecting…",codeNeeded:"Enter the room code.",thin:"Thin",medium:"Medium",thick:"Thick",clear:"Clear",round:"Round",english:"English",vietnamese:"Tiếng Việt",messageSent:"Message sent"},
-vi:{brand:"🎨 Hẹn hò vẽ tranh 💕",sub:"Vẽ • Đoán • Dịch • Cười",title:"Một trò chơi nhỏ dành cho hai người",desc:"Mỗi người nhìn thấy từ bằng ngôn ngữ của mình. Đoán bằng ngôn ngữ của bạn. Tin nhắn cũng được dịch.",createTitle:"Tạo phòng",joinTitle:"Tham gia phòng",nameLabel:"Tên của bạn",nameLabel2:"Tên của bạn",yourLang:"Ngôn ngữ của bạn",yourLang2:"Ngôn ngữ của bạn",createBtn:"Tạo phòng",joinBtn:"Tham gia phòng",guessPlaceholder:"Nhập đáp án bằng ngôn ngữ của bạn",guessButton:"Đoán",chatPlaceholder:"Tin nhắn",sendButton:"Gửi",roomCodeLabel:"Mã phòng",copy:"Sao chép mã",waiting:"Đang chờ người bạn của bạn…",guestWaiting:"Bạn đã kết nối. Chủ phòng sẽ bắt đầu trò chơi 💗",start:"Bắt đầu trò chơi",players:"Người chơi",chatTitle:"💬 Trò chuyện đã dịch",waitingHost:"Đang chờ chủ phòng…",connected:"Bạn của bạn đã kết nối 💗",draw:"Lượt của bạn — hãy vẽ!",guessTurn:"Lượt của bạn — hãy đoán!",drawHint:"Hãy vẽ từ này mà không gõ từ đó!",guessHint:"Nhập đáp án bằng ngôn ngữ của bạn.",correct:"🎉 Chính xác!",tryAgain:"Thử lại nhé!",incorrect:"Chưa đúng — hãy thử lại!",finished:"💗 Trò chơi kết thúc!",connection:"Đang kết nối…",codeNeeded:"Hãy nhập mã phòng.",thin:"Nét mảnh",medium:"Nét vừa",thick:"Nét dày",clear:"Xóa",round:"Vòng",english:"Tiếng Anh",vietnamese:"Tiếng Việt",messageSent:"Đã gửi tin nhắn"}
+en:{brand:"🎨 Scribble Date 💕",sub:"Draw • Guess • Translate • Laugh",title:"A tiny game made for two",desc:"Each player sees the word in their own language. Guess in your own language. Chat is translated too.",createTitle:"Create room",joinTitle:"Join room",nameLabel:"Your name",nameLabel2:"Your name",yourLang:"Your language",yourLang2:"Your language",createBtn:"Create room",joinBtn:"Join room",guessPlaceholder:"Type your guess",guessButton:"Guess",chatPlaceholder:"Message",sendButton:"Send",roomCodeLabel:"Room code",copy:"Copy code",waiting:"Waiting for your friend…",guestWaiting:"You are connected. The host will start the game 💗",start:"Start game",players:"Players",chatTitle:"💬 Translated chat",waitingHost:"Waiting for the host…",connected:"Your friend is connected 💗",draw:"Your turn — draw!",guessTurn:"Your turn — guess!",drawHint:"Draw the word without typing it!",guessHint:"Type your guess in your language.",correct:"🎉 Correct!",tryAgain:"Try again!",incorrect:"Not quite — try again!",finished:"💗 Game finished!",connection:"Connecting…",codeNeeded:"Enter the room code.",thin:"Thin",medium:"Medium",thick:"Thick",eraserSmall:"Small eraser",eraserMedium:"Medium eraser",eraserLarge:"Large eraser",clear:"Clear",round:"Round",english:"English",vietnamese:"Tiếng Việt",messageSent:"Message sent"},
+vi:{brand:"🎨 Hẹn hò vẽ tranh 💕",sub:"Vẽ • Đoán • Dịch • Cười",title:"Một trò chơi nhỏ dành cho hai người",desc:"Mỗi người nhìn thấy từ bằng ngôn ngữ của mình. Đoán bằng ngôn ngữ của bạn. Tin nhắn cũng được dịch.",createTitle:"Tạo phòng",joinTitle:"Tham gia phòng",nameLabel:"Tên của bạn",nameLabel2:"Tên của bạn",yourLang:"Ngôn ngữ của bạn",yourLang2:"Ngôn ngữ của bạn",createBtn:"Tạo phòng",joinBtn:"Tham gia phòng",guessPlaceholder:"Nhập đáp án bằng ngôn ngữ của bạn",guessButton:"Đoán",chatPlaceholder:"Tin nhắn",sendButton:"Gửi",roomCodeLabel:"Mã phòng",copy:"Sao chép mã",waiting:"Đang chờ người bạn của bạn…",guestWaiting:"Bạn đã kết nối. Chủ phòng sẽ bắt đầu trò chơi 💗",start:"Bắt đầu trò chơi",players:"Người chơi",chatTitle:"💬 Trò chuyện đã dịch",waitingHost:"Đang chờ chủ phòng…",connected:"Bạn của bạn đã kết nối 💗",draw:"Lượt của bạn — hãy vẽ!",guessTurn:"Lượt của bạn — hãy đoán!",drawHint:"Hãy vẽ từ này mà không gõ từ đó!",guessHint:"Nhập đáp án bằng ngôn ngữ của bạn.",correct:"🎉 Chính xác!",tryAgain:"Thử lại nhé!",incorrect:"Chưa đúng — hãy thử lại!",finished:"💗 Trò chơi kết thúc!",connection:"Đang kết nối…",codeNeeded:"Hãy nhập mã phòng.",thin:"Nét mảnh",medium:"Nét vừa",thick:"Nét dày",eraserSmall:"Tẩy nhỏ",eraserMedium:"Tẩy vừa",eraserLarge:"Tẩy lớn",clear:"Xóa",round:"Vòng",english:"Tiếng Anh",vietnamese:"Tiếng Việt",messageSent:"Đã gửi tin nhắn"}
 };
 let uiLang="en",joinLang="vi",client=null,sendQueue=Promise.resolve(),drawSeq=0,isHost=false,me=null,other=null,artistId=null,target=null,roomId="",roomTopic="",drawing=false,last=null,brush=7,brushColor="#29232b",round=0,scores={},maxRounds=50,wordIndex=0,wordQueue=[],connected=false;
 
@@ -275,10 +278,14 @@ function point(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.l
 let strokePoints=[];
 function renderStroke(points,color,size){
   if(!points||points.length<2)return;
-  ctx.strokeStyle=color||"#29232b";ctx.lineWidth=size||7;ctx.lineCap="round";ctx.lineJoin="round";
+  const eraser=color==="__ERASER__";
+  ctx.save();
+  ctx.globalCompositeOperation=eraser?"destination-out":"source-over";
+  ctx.strokeStyle=eraser?"rgba(0,0,0,1)":(color||"#29232b");ctx.lineWidth=size||7;ctx.lineCap="round";ctx.lineJoin="round";
   ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);
   for(let i=1;i<points.length;i++)ctx.lineTo(points[i].x,points[i].y);
   ctx.stroke();
+  ctx.restore();
 }
 function drawLine(a,b,emit=true,color=brushColor,size=brush){
   renderStroke([a,b],color,size);
@@ -294,8 +301,9 @@ canvas.addEventListener("pointerup",()=>{
   strokePoints=[];
 });
 canvas.addEventListener("pointercancel",()=>strokePoints=[]);
-document.querySelectorAll("[data-size]").forEach(b=>b.onclick=()=>brush=+b.dataset.size);
-document.querySelectorAll("[data-color]").forEach(b=>b.onclick=()=>brushColor=b.dataset.color);
+document.querySelectorAll("[data-size]").forEach(b=>b.onclick=()=>{brush=+b.dataset.size;brushColor=brushColor==="__ERASER__"?"#29232b":brushColor});
+document.querySelectorAll("[data-color]").forEach(b=>b.onclick=()=>{brushColor=b.dataset.color});
+document.querySelectorAll("[data-eraser-size]").forEach(b=>b.onclick=()=>{brush=+b.dataset.eraserSize;brushColor="__ERASER__"});
 $("clearBtn").onclick=()=>{ctx.clearRect(0,0,900,600);send({t:"clear"})};
 $("guessBtn").onclick=()=>{const g=$("guessInput").value.trim();if(!g)return;$("guessInput").value="";send({t:"guess",g})};
 $("guessInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("guessBtn").click()});
