@@ -243,7 +243,7 @@ function handle(m){
   if(m.t==="hello"&&isHost){
     other=m.player;renderPlayers([me,{...other,score:0}]);setStatus(tx("connected"),"ok");$("startBtn").disabled=false;send({t:"welcome",host:me,guest:{...other,score:0}});return;
   }
-  if(m.t==="welcome"&&!isHost){other=m.guest;renderPlayers([m.host,other]);setStatus(tx("guestWaiting"),"ok");return}
+  if(m.t==="welcome"&&!isHost){other=m.host;renderPlayers([me,other]);setStatus(tx("guestWaiting"),"ok");return}
   if(m.t==="start"){artistId=m.artistId;target=m.target;round=m.round;scores=m.scores||{};renderPlayers(m.players);startTurn();return}
   if(m.t==="nextRound"){artistId=m.artistId;target=m.target;round=m.round;scores=m.scores||scores;renderPlayers([{...me,score:scores[me.id]||0},{...other,score:scores[other.id]||0}]);startTurn();return}
   if(m.t==="stroke"){renderStroke(m.points,m.color,m.size);return}
